@@ -1,40 +1,22 @@
-import requests
-from bs4 import BeautifulSoup
-import pandas as pd 
+import sys
+import os
 
-def fetch_page(url):
-    response = requests.get(url)
-    if response.status_code == 200:
-     return response.content
-    else:
-     raise Exception(f"Failed to fetch page: {url}")
+sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
 
-def parse_product(product):
-    title = product.find("a",class_="title").text.strip()
-    description = product.find("p",class_="description").text.strip()
-    price = product.find("h4", class_='price').text.strip()
-    return {
-        "title": title,
-        "description":description,
-        "price": price,
-    }
-    
-def scrape(url):
-    page_content= fetch_page(url)
-    soup = BeautifulSoup(page_content, "html.parser")
-    products = soup.find_all("div", class_="thumbnail")
-    products_data=[]
-    
-    for product in products:
-        product_info = parse_product(product)
-        products_data.append(product_info)
-    
-    return pd.DataFrame(products_data)
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from src.scraping.scraper import scrape
 
-base_url="https://webscraper.io/test-sites/e-commerce/allinone"
+base_url = "https://tiendamia.com/ec/tendencias-laptops"
 
 df = scrape(base_url)
 
-print(df)
+df.head()
 
-df.to_csv('data/raw/products.csv', index=False)
+plt.figure(figsize=(10, 6))
+sns.histplot(df['price'], bins=20)
+plt.title('Distribución de Precios')
+plt.xlabel('Precio')
+plt.ylabel('Frecuencia')
+plt.show()
