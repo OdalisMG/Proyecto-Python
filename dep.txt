@@ -1,0 +1,4 @@
+pandas
+Beautifulsoup4
+requests
+matplotlib
